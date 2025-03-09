@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const HotelPage = () => {
   const { hotelName } = useParams();
@@ -7,6 +7,8 @@ const HotelPage = () => {
   const [message, setMessage] = useState("");
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
+
+  const navigate = useNavigate(); // For React Router v6
 
   useEffect(() => {
     fetch(`http://localhost:5011/getHotelByName?HotelName=${hotelName}`)
@@ -26,7 +28,7 @@ const HotelPage = () => {
 
   const handleGetQuote = (pkg) => {
     setSelectedPackage(pkg);
-    setShowQuoteForm(true);
+    navigate("/quote", { state: { package: pkg } }); // Navigating to QuotePage with package data
   };
 
   const handleCloseQuoteForm = () => {
