@@ -1,16 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import HotelLogin from "../Components/HotelLogin";
-import EditHotelDetails from "../Components/EditHotelDetails";
 import HotelDetails from "../Components/HotelDetails";
+import EditHotelDetails from "../Components/EditHotelDetails";
 import AddPackage from "../Components/AddPackage";
 
 export default function Hotel() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Control edit mode
+
   return (
     <div>
-      <HotelLogin />
-      <EditHotelDetails />
-      <HotelDetails />
-      <AddPackage />
+      {!isLoggedIn ? (
+        <HotelLogin onLoginSuccess={() => setIsLoggedIn(true)} />
+      ) : isEditing ? (
+        <EditHotelDetails onUpdateSuccess={() => setIsEditing(false)} />
+      ) : (
+        <HotelDetails onEdit={() => setIsEditing(true)} />
+      )}
+      {/* <AddPackage /> */}
     </div>
   );
 }

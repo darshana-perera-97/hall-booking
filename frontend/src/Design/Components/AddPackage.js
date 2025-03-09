@@ -6,6 +6,7 @@ const AddPackage = () => {
   const [about, setAbout] = useState("");
   const [content, setContent] = useState([]);
   const [prices, setPrices] = useState([]);
+  const [confirmationMessage, setConfirmationMessage] = useState("");
 
   const handleFileChange = (e) => {
     setImage(e.target.files[0]); // Store selected image
@@ -36,7 +37,7 @@ const AddPackage = () => {
 
       if (response.ok) {
         const data = await response.json();
-        alert("Package added successfully!");
+        setConfirmationMessage("Package added successfully!");
         console.log(data);
       } else {
         alert("Failed to add package");
@@ -49,6 +50,9 @@ const AddPackage = () => {
   return (
     <div className="container mt-4">
       <h2>Add Package</h2>
+      {confirmationMessage && (
+        <div className="alert alert-success">{confirmationMessage}</div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label className="form-label">Package Name</label>

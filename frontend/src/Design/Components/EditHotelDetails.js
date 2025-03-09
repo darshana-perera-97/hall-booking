@@ -1,38 +1,13 @@
-// EditHotelDetails.js
-
 import React, { useState, useEffect } from "react";
 
-const EditHotelDetails = () => {
-  const [hotelId, setHotelId] = useState(localStorage.getItem("HotelId"));
-  const [hotelName, setHotelName] = useState("");
-  const [location, setLocation] = useState("");
+const EditHotelDetails = ({ hotel, setIsEditing }) => {
+  const [hotelId] = useState(localStorage.getItem("HotelId"));
+  const [hotelName, setHotelName] = useState(hotel?.HotelName || "");
+  const [location, setLocation] = useState(hotel?.Location || "");
   const [password, setPassword] = useState("");
   const [mainImage, setMainImage] = useState(null);
-  const [currentImage, setCurrentImage] = useState("");
+  const [currentImage, setCurrentImage] = useState(hotel?.mainImage || "");
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    if (!hotelId) {
-      setMessage("You are not logged in.");
-      return;
-    }
-
-    fetch(`http://localhost:5011/getHotelDetails?HotelId=${hotelId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message) {
-          setMessage(data.message);
-        } else {
-          setHotelName(data.HotelName);
-          setLocation(data.Location);
-          setCurrentImage(data.mainImage);
-        }
-      })
-      .catch((error) => {
-        setMessage("Error fetching hotel details.");
-        console.error(error);
-      });
-  }, [hotelId]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -59,6 +34,7 @@ const EditHotelDetails = () => {
 
       const result = await response.json();
       setMessage(result.message || "Hotel details updated successfully.");
+      setIsEditing(false); // Return to hotel details view after update
     } catch (error) {
       setMessage("Error updating hotel details.");
       console.error("Error:", error);

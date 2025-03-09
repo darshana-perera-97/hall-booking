@@ -1,8 +1,6 @@
-// HotelLogin.js
-
 import React, { useState } from "react";
 
-const HotelLogin = () => {
+const HotelLogin = ({ onLoginSuccess }) => {
   const [hotelId, setHotelId] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -24,10 +22,7 @@ const HotelLogin = () => {
       return;
     }
 
-    const loginData = {
-      HotelId: hotelId,
-      password: password,
-    };
+    const loginData = { HotelId: hotelId, password };
 
     try {
       const response = await fetch("http://localhost:5011/hotelLogin", {
@@ -41,9 +36,8 @@ const HotelLogin = () => {
       const result = await response.json();
 
       if (response.ok) {
-        // Store the HotelId in localStorage if login is successful
-        localStorage.setItem("HotelId", result.HotelId);
         setMessage("Login successful!");
+        onLoginSuccess(); // Update state in parent to show other components
       } else {
         setMessage(result.message || "Login failed.");
       }
