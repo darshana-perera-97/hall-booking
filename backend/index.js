@@ -41,29 +41,30 @@ const writeHotels = (hotels) => {
   fs.writeFileSync(DATA_FILE, JSON.stringify(hotels, null, 2));
 };
 
-// In your /addHotels API
 app.post("/addHotels", upload.single("mainImage"), (req, res) => {
   let { HotelName, Location, stars, password } = req.body;
   let mainImage = "";
 
-  // If a new image is uploaded, update the mainImage URL
+  let hotels = readHotels(); // Load existing hotels before modifying
+
   if (req.file) {
-    mainImage = `http://localhost:5011/${req.file.filename}`; // Return full image URL
+    mainImage = `http://localhost:5011/${req.file.filename}`;
   }
 
-  const hotel = {
-    HotelId: hotels.length + 1, // Incremental HotelId
+  const newHotel = {
+    HotelId: hotels.length + 1,
     HotelName,
     Location,
     mainImage,
     stars,
-    password, // Adding password to hotel data
-    packages: [], // Empty array for packages
+    password,
+    packages: [],
   };
 
-  hotels.push(hotel);
-  saveHotelsData();
-  res.status(201).json(hotel); // Send the newly created hotel back to the client
+  hotels.push(newHotel);
+  writeHotels(hotels); // Save updated list
+
+  res.status(201).json(newHotel);
 });
 
 // API to login a hotel (check HotelId and password)

@@ -14,6 +14,7 @@ export default function Design() {
       {/* <ViewHotel /> */}
 
       <Routes>
+        <Route path="/SuperAdmin" element={<SuperAdmin />} />
         <Route path="/" element={<ViewHotel />} />
         <Route path="/:hotelName" element={<HotelPage />} />
         <Route path="/quote/:packageName" component={QuotePage} />

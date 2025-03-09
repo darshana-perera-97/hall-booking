@@ -2,20 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 const HotelPage = () => {
-  const { hotelName } = useParams(); // Get hotel name from URL
+  const { hotelName } = useParams();
   const [hotel, setHotel] = useState(null);
   const [message, setMessage] = useState("");
   const [selectedPackage, setSelectedPackage] = useState(null);
-  const [showQuoteForm, setShowQuoteForm] = useState(false); // State to toggle quote form visibility
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
 
   useEffect(() => {
-    const hotelName = window.location.pathname.split("/").pop(); // Get hotel name from the URL
-
-    if (!hotelName) {
-      setMessage("Hotel Name is missing");
-      return;
-    }
-
     fetch(`http://localhost:5011/getHotelByName?HotelName=${hotelName}`)
       .then((response) => response.json())
       .then((data) => {
@@ -29,15 +22,13 @@ const HotelPage = () => {
         setMessage("Error fetching hotel details.");
         console.error(error);
       });
-  }, []);
+  }, [hotelName]);
 
-  // Handle the selection of a package and show the quote form
   const handleGetQuote = (pkg) => {
     setSelectedPackage(pkg);
     setShowQuoteForm(true);
   };
 
-  // Close the quote form
   const handleCloseQuoteForm = () => {
     setShowQuoteForm(false);
     setSelectedPackage(null);
@@ -60,8 +51,8 @@ const HotelPage = () => {
             <strong>Main Image:</strong>
             {hotel.mainImage ? (
               <img
-                src={`http://localhost:5011/${hotel.mainImage}`}
-                alt="Main"
+                src={hotel.mainImage} // No need to prefix with localhost
+                alt={hotel.HotelName}
                 className="img-fluid"
                 style={{ maxWidth: "300px", marginTop: "10px" }}
               />
@@ -70,7 +61,6 @@ const HotelPage = () => {
             )}
           </div>
 
-          {/* Show Available Packages */}
           {hotel.packages && hotel.packages.length > 0 && (
             <>
               <h4 className="mt-4">Available Packages</h4>
@@ -82,15 +72,16 @@ const HotelPage = () => {
                     style={{ cursor: "pointer" }}
                   >
                     <div className="card mb-3 shadow-sm">
-                      <img
-                        src={`http://localhost:5011/${pkg.image}`}
-                        className="card-img-top"
-                        alt={pkg.packageName}
-                        style={{ height: "200px", objectFit: "cover" }}
-                      />
+                      {pkg.image && (
+                        <img
+                          src={pkg.image} // No need to prefix with localhost
+                          className="card-img-top"
+                          alt={pkg.packageName}
+                          style={{ height: "200px", objectFit: "cover" }}
+                        />
+                      )}
                       <div className="card-body text-center">
                         <h5 className="card-title">{pkg.packageName}</h5>
-                        {/* Add Get Quote Button */}
                         <button
                           className="btn btn-primary"
                           onClick={() => handleGetQuote(pkg)}
@@ -107,16 +98,17 @@ const HotelPage = () => {
         </div>
       )}
 
-      {/* Show Package Details in the Same Page When Selected */}
       {showQuoteForm && selectedPackage && (
         <div className="mt-4 p-4 border rounded shadow-lg">
           <h3>{selectedPackage.packageName}</h3>
-          <img
-            src={`http://localhost:5011/${selectedPackage.image}`}
-            alt={selectedPackage.packageName}
-            className="img-fluid"
-            style={{ maxWidth: "300px", marginBottom: "10px" }}
-          />
+          {selectedPackage.image && (
+            <img
+              src={selectedPackage.image} // No need to prefix with localhost
+              alt={selectedPackage.packageName}
+              className="img-fluid"
+              style={{ maxWidth: "300px", marginBottom: "10px" }}
+            />
+          )}
           <p>
             <strong>About:</strong> {selectedPackage.about}
           </p>
