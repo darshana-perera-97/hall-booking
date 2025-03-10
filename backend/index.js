@@ -109,6 +109,38 @@ app.get("/getHotelDetails", (req, res) => {
   res.status(200).json(hotel); // Return the hotel details
 });
 
+app.get("/getHotelById", (req, res) => {
+  const { HotelId } = req.query;
+  const hotel = hotels.find((h) => h.HotelId == HotelId);
+
+  if (hotel) {
+    res.json(hotel);
+  } else {
+    res.json({ message: "Hotel not found" });
+  }
+});
+
+app.get("/getHotelByName", (req, res) => {
+  const { HotelName } = req.query;
+
+  if (!HotelName) {
+    return res.status(400).json({ message: "Hotel Name is required" });
+  }
+
+  // Ensure this function is correctly defined
+  const hotels = readHotels(); // This correctly reads from `data.json`
+
+  const hotel = hotels.find(
+    (h) => h.HotelName.toLowerCase() === HotelName.toLowerCase()
+  );
+
+  if (!hotel) {
+    return res.status(404).json({ message: "Hotel not found" });
+  }
+
+  res.json(hotel);
+});
+
 // API to edit hotel details
 app.put("/editHotelDetails", upload.single("mainImage"), (req, res) => {
   const { HotelId, HotelName, Location, password } = req.body;

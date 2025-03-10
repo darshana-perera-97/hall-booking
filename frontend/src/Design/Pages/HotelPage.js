@@ -14,6 +14,7 @@ const HotelPage = () => {
     fetch(`http://localhost:5011/getHotelByName?HotelName=${hotelName}`)
       .then((response) => response.json())
       .then((data) => {
+        console.log("API Response:", data); // Debugging
         if (data.message) {
           setMessage(data.message);
         } else {
@@ -21,8 +22,8 @@ const HotelPage = () => {
         }
       })
       .catch((error) => {
+        console.error("Fetch error:", error);
         setMessage("Error fetching hotel details.");
-        console.error(error);
       });
   }, [hotelName]);
 
