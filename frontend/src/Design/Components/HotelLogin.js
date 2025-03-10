@@ -1,138 +1,101 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 
-const HotelPage = () => {
-  const { hotelId } = useParams(); // Get HotelId from URL
-  const [hotel, setHotel] = useState(null);
+const HotelLogin = ({ onLoginSuccess }) => {
+  const [hotelId, setHotelId] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [selectedPackage, setSelectedPackage] = useState(null);
-  const [showQuoteForm, setShowQuoteForm] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch(`http://localhost:5011/getHotelById?HotelId=${hotelId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message) {
-          setMessage(data.message);
-        } else {
-          setHotel(data);
-        }
-      })
-      .catch((error) => {
-        setMessage("Error fetching hotel details.");
-        console.error(error);
-      });
-  }, [hotelId]);
-
-  const handleGetQuote = (pkg) => {
-    setSelectedPackage(pkg);
-    navigate("/quote", { state: { package: pkg } });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "HotelId") {
+      setHotelId(value);
+    } else if (name === "password") {
+      setPassword(value);
+    }
   };
 
-  const handleCloseQuoteForm = () => {
-    setShowQuoteForm(false);
-    setSelectedPackage(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!hotelId || !password) {
+      setMessage("Hotel ID and password are required.");
+      return;
+    }
+
+    const loginData = { HotelId: hotelId, password };
+
+    try {
+      const response = await fetch("http://localhost:5011/hotelLogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage("Login successful!");
+
+        // Store hotel ID in localStorage
+        localStorage.setItem("HotelId", hotelId);
+
+        onLoginSuccess(); // Call parent function to update state
+      } else {
+        setMessage(result.message || "Login failed.");
+      }
+    } catch (error) {
+      setMessage("Error connecting to the server. Please try again.");
+      console.error("Error:", error);
+    }
   };
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4">Hotel Details</h2>
-      {message && <div className="alert alert-info text-center">{message}</div>}
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card shadow-lg p-4">
+            <h2 className="text-center mb-4">Hotel Login</h2>
 
-      {hotel && (
-        <div className="card shadow-lg p-4">
-          <h4>Hotel Name: {hotel.HotelName}</h4>
-          <p>
-            <strong>Location:</strong> {hotel.Location}
-          </p>
-          <p>
-            <strong>Stars:</strong> {hotel.stars}
-          </p>
+            {message && (
+              <div className="alert alert-info text-center">{message}</div>
+            )}
 
-          {hotel.mainImage ? (
-            <img
-              src={hotel.mainImage}
-              alt={hotel.HotelName}
-              className="img-fluid"
-              style={{ maxWidth: "300px", marginTop: "10px" }}
-            />
-          ) : (
-            <p>No image available</p>
-          )}
-
-          {Array.isArray(hotel.packages) && hotel.packages.length > 0 && (
-            <>
-              <h4 className="mt-4">Available Packages</h4>
-              <div className="row">
-                {hotel.packages.map((pkg, index) => (
-                  <div
-                    key={index}
-                    className="col-md-4"
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="card mb-3 shadow-sm">
-                      {pkg.image && (
-                        <img
-                          src={pkg.image}
-                          className="card-img-top"
-                          alt={pkg.packageName}
-                          style={{ height: "200px", objectFit: "cover" }}
-                        />
-                      )}
-                      <div className="card-body text-center">
-                        <h5 className="card-title">{pkg.packageName}</h5>
-                        <button
-                          className="btn btn-primary"
-                          onClick={() => handleGetQuote(pkg)}
-                        >
-                          Get Quote
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label className="form-label fw-bold">Hotel ID</label>
+                <input
+                  type="text"
+                  name="HotelId"
+                  className="form-control"
+                  value={hotelId}
+                  onChange={handleChange}
+                  required
+                />
               </div>
-            </>
-          )}
-        </div>
-      )}
 
-      {showQuoteForm && selectedPackage && (
-        <div className="mt-4 p-4 border rounded shadow-lg">
-          <h3>{selectedPackage.packageName}</h3>
-          {selectedPackage.image && (
-            <img
-              src={selectedPackage.image}
-              alt={selectedPackage.packageName}
-              className="img-fluid"
-              style={{ maxWidth: "300px", marginBottom: "10px" }}
-            />
-          )}
-          <p>
-            <strong>About:</strong> {selectedPackage.about}
-          </p>
-          <h5>Contents:</h5>
-          <ul>
-            {selectedPackage.content.map((item, idx) => (
-              <li key={idx}>{item}</li>
-            ))}
-          </ul>
-          <h5>Pricing:</h5>
-          <ul>
-            {selectedPackage.prices.map((price, idx) => (
-              <li key={idx}>
-                {price.from} - {price.to}: ${price.price}
-              </li>
-            ))}
-          </ul>
-          <button className="btn btn-secondary" onClick={handleCloseQuoteForm}>
-            Close
-          </button>
+              <div className="mb-3">
+                <label className="form-label fw-bold">Password</label>
+                <input
+                  type="password"
+                  name="password"
+                  className="form-control"
+                  value={password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary w-100">
+                Login
+              </button>
+            </form>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default HotelPage;
+export default HotelLogin;

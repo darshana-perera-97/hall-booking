@@ -278,6 +278,23 @@ app.get("/getHotelByName", (req, res) => {
   res.json(hotel);
 });
 
+app.get("/getHotelById", (req, res) => {
+  const { HotelId } = req.query;
+
+  if (!HotelId) {
+    return res.status(400).json({ message: "HotelId is required." });
+  }
+
+  const hotels = readHotels(); // Ensure data is read
+  const hotel = hotels.find((h) => h.HotelId == parseInt(HotelId));
+
+  if (!hotel) {
+    return res.status(404).json({ message: "Hotel not found" });
+  }
+
+  res.json(hotel);
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
